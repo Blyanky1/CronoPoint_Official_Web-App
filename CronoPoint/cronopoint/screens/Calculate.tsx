@@ -47,16 +47,12 @@ export default function Calculate() {
     return
   }
 
-  // -------------------------------
   // 1) BINÔMIO DO ANO
-  // -------------------------------
   const year = data.getFullYear()
   let binomioAno = year - 1923
   if (binomioAno > 60) binomioAno -= 60
 
-  // -------------------------------
-  // 2) TABELA CORRIGIDA DOS ANOS 1900–2031
-  // -------------------------------
+  // 2) DIFERENÇAS DOS ANOS
   const diferencasAnos: Record<number, number> = {
     1900: 9, 1901: 15, 1902: 20, 1903: 25, 1904: 30, 1905: 36, 1906: 41, 1907: 46,
     1908: 51, 1909: 57, 1910: 2, 1911: 7, 1912: 12, 1913: 18, 1914: 23, 1915: 28,
@@ -79,27 +75,31 @@ export default function Calculate() {
 
   const diffAno = diferencasAnos[year] ?? 49
 
-  // -------------------------------
-  // 3) OFFSET DE MESES (corrigido)
-  // -------------------------------
+  // 3) OFFSET DE MESES
   const monthOffsets = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
+
+  // 🔥 4) ANO BISSEXTO — REGRA DA IMAGEM
+  const isLeap =
+    (year % 4 === 0 && year % 100 !== 0) ||
+    (year % 400 === 0)
+
+  const ajusteBissexto =
+    isLeap && data.getMonth() >= 2 ? 1 : 0
 
   const totalDays =
     diffAno +
     monthOffsets[data.getMonth()] +
-    data.getDate()
+    data.getDate() +
+    ajusteBissexto
 
+  // 5) BINÔMIO DO DIA
   let binomioDia = totalDays > 60 ? totalDays - 60 : totalDays
 
-  // -------------------------------
-  // 4) DETERMINAR TRONCO T1–T10
-  // -------------------------------
+  // 6) TRONCO T1..T10
   const troncoIndex = binomioDia % 10 === 0 ? 10 : (binomioDia % 10)
   const tronco = `T${troncoIndex}`
 
-  // -------------------------------
-  // 5) TABELA COMPLETA DE PONTOS (T1..T10)
-  // -------------------------------
+  // 7) TABELA COMPLETA DE PONTOS
   const tabelaPontos: Record<string, string[]> = {
     T1:  ['ID2','C3','E43','C55','IG5','BP1','B54','P10','TR2','R3','VB44','F4'],
     T2:  ['E36','BP3','TR10','P8','IG1','R10','B66','CS8','VB41','F1','ID5','C8'],
@@ -113,9 +113,7 @@ export default function Calculate() {
     T10: ['VB38','R1','ID8','F2','TR6','C7','E45','BP5','TR2','TR5','B65','CS9']
   }
 
-  // -------------------------------
-  // 6) INTERVALOS DE HORAS (12 LINHAS)
-  // -------------------------------
+  // 8) INTERVALOS DE HORAS
   const intervalos = [
     { min: 23, max: 24 },
     { min: 1,  max: 3  },
@@ -144,9 +142,7 @@ export default function Calculate() {
     return
   }
 
-  // -------------------------------
-  // 7) RESULTADO FINAL
-  // -------------------------------
+  // 9) RESULTADO FINAL
   const pontoAberto = tabelaPontos[tronco][linha]
   setResultado(pontoAberto)
 }

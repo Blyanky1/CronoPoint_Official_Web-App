@@ -41,45 +41,118 @@ export default function Calculate() {
     return `${hh}:${mm}`
   }
 
-  const handleCalcular = () => {
-    if (!data || !hora) {
-      Alert.alert('Atenção', 'Preencha a data e a hora do nascimento.')
-      return
-    }
-
-    const year = data.getFullYear()
-    let binomioAno = year - 1923
-    if (binomioAno > 60) binomioAno -= 60
-
-    const diferencasAnos: Record<number, number> = {
-      2000: 11, 2001: 42, 2002: 17, 2003: 49, 2004: 20, 2005: 50, 2006: 21,
-      2007: 51, 2008: 23, 2009: 54, 2010: 25, 2011: 55, 2012: 27, 2013: 57,
-      2014: 28, 2015: 58, 2016: 29, 2017: 0, 2018: 31, 2019: 1, 2020: 32,
-    }
-
-    const diffAno = diferencasAnos[year] ?? 49
-    const monthOffsets = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
-    const totalDays = diffAno + monthOffsets[data.getMonth()] + data.getDate()
-    let binomioDia = totalDays > 60 ? totalDays - 60 : totalDays
-
-    const hour = hora.getHours()
-    let pontoAberto = ''
-
-    if (hour >= 23 || hour < 1) pontoAberto = 'ID2'
-    else if (hour < 3) pontoAberto = 'E36'
-    else if (hour < 5) pontoAberto = 'B60'
-    else if (hour < 7) pontoAberto = 'F8'
-    else if (hour < 9) pontoAberto = 'VB34'
-    else if (hour < 11) pontoAberto = 'BP1'
-    else if (hour < 13) pontoAberto = 'C7'
-    else if (hour < 15) pontoAberto = 'CS8'
-    else if (hour < 17) pontoAberto = 'VB41'
-    else if (hour < 19) pontoAberto = 'R3'
-    else if (hour < 21) pontoAberto = 'ID5'
-    else pontoAberto = 'BP9'
-
-    setResultado(pontoAberto)
+ const handleCalcular = () => {
+  if (!data || !hora) {
+    Alert.alert('Atenção', 'Preencha a data e a hora do nascimento.')
+    return
   }
+
+  // -------------------------------
+  // 1) BINÔMIO DO ANO
+  // -------------------------------
+  const year = data.getFullYear()
+  let binomioAno = year - 1923
+  if (binomioAno > 60) binomioAno -= 60
+
+  // -------------------------------
+  // 2) TABELA CORRIGIDA DOS ANOS 1900–2031
+  // -------------------------------
+  const diferencasAnos: Record<number, number> = {
+    1900: 9, 1901: 15, 1902: 20, 1903: 25, 1904: 30, 1905: 36, 1906: 41, 1907: 46,
+    1908: 51, 1909: 57, 1910: 2, 1911: 7, 1912: 12, 1913: 18, 1914: 23, 1915: 28,
+    1916: 33, 1917: 39, 1918: 44, 1919: 49, 1920: 54, 1921: 60, 1922: 5, 1923: 10,
+    1924: 15, 1925: 21, 1926: 26, 1927: 31, 1928: 36, 1929: 42, 1930: 47, 1931: 52,
+    1932: 57, 1933: 3, 1934: 8, 1935: 13, 1936: 18, 1937: 24, 1938: 29, 1939: 34,
+    1940: 39, 1941: 45, 1942: 50, 1943: 55, 1944: 60, 1945: 6, 1946: 11, 1947: 16,
+    1948: 21, 1949: 27, 1950: 32, 1951: 37, 1952: 42, 1953: 48, 1954: 53, 1955: 58,
+    1956: 63, 1957: 9, 1958: 14, 1959: 19, 1960: 24, 1961: 30, 1962: 35, 1963: 40,
+    1964: 45, 1965: 51, 1966: 56, 1967: 61, 1968: 66, 1969: 12, 1970: 17, 1971: 22,
+    1972: 27, 1973: 33, 1974: 38, 1975: 43, 1976: 48, 1977: 54, 1978: 59, 1979: 4,
+    1980: 9, 1981: 15, 1982: 20, 1983: 25, 1984: 30, 1985: 36, 1986: 41, 1987: 46,
+    1988: 51, 1989: 57, 1990: 2, 1991: 7, 1992: 12, 1993: 18, 1994: 23, 1995: 28,
+    1996: 33, 1997: 39, 1998: 44, 1999: 49, 2000: 54, 2001: 60, 2002: 5, 2003: 10,
+    2004: 15, 2005: 21, 2006: 26, 2007: 31, 2008: 36, 2009: 42, 2010: 47, 2011: 52,
+    2012: 57, 2013: 3, 2014: 8, 2015: 13, 2016: 18, 2017: 24, 2018: 29, 2019: 34,
+    2020: 39, 2021: 45, 2022: 50, 2023: 55, 2024: 60, 2025: 6, 2026: 11, 2027: 16,
+    2028: 21, 2029: 27, 2030: 32, 2031: 37
+  }
+
+  const diffAno = diferencasAnos[year] ?? 49
+
+  // -------------------------------
+  // 3) OFFSET DE MESES (corrigido)
+  // -------------------------------
+  const monthOffsets = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
+
+  const totalDays =
+    diffAno +
+    monthOffsets[data.getMonth()] +
+    data.getDate()
+
+  let binomioDia = totalDays > 60 ? totalDays - 60 : totalDays
+
+  // -------------------------------
+  // 4) DETERMINAR TRONCO T1–T10
+  // -------------------------------
+  const troncoIndex = binomioDia % 10 === 0 ? 10 : (binomioDia % 10)
+  const tronco = `T${troncoIndex}`
+
+  // -------------------------------
+  // 5) TABELA COMPLETA DE PONTOS (T1..T10)
+  // -------------------------------
+  const tabelaPontos: Record<string, string[]> = {
+    T1:  ['ID2','C3','E43','C55','IG5','BP1','B54','P10','TR2','R3','VB44','F4'],
+    T2:  ['E36','BP3','TR10','P8','IG1','R10','B66','CS8','VB41','F1','ID5','C8'],
+    T3:  ['IG3','CS7','B60','P11','VB34','R2','TR3','F3','ID1','C4','E44','BP9'],
+    T4:  ['TR1','R7','B67','F8','VB43','CS7','ID3','C9','E41','BP2','IG11','P9'],
+    T5:  ['VB38','R1','ID8','F2','TR6','C7','E45','BP5','TR2','TR5','B65','CS9'],
+    T6:  ['ID2','C3','E43','C55','IG5','BP1','B54','P10','TR2','R3','VB44','F4'],
+    T7:  ['E36','BP3','TR10','P8','IG1','R10','B66','CS8','VB41','F1','ID5','C8'],
+    T8:  ['IG3','CS7','B60','P11','VB34','R2','TR3','F3','ID1','C4','E44','BP9'],
+    T9:  ['TR1','R7','B67','F8','VB43','CS7','ID3','C9','E41','BP2','IG11','P9'],
+    T10: ['VB38','R1','ID8','F2','TR6','C7','E45','BP5','TR2','TR5','B65','CS9']
+  }
+
+  // -------------------------------
+  // 6) INTERVALOS DE HORAS (12 LINHAS)
+  // -------------------------------
+  const intervalos = [
+    { min: 23, max: 24 },
+    { min: 1,  max: 3  },
+    { min: 3,  max: 5  },
+    { min: 5,  max: 7  },
+    { min: 7,  max: 9  },
+    { min: 9,  max: 11 },
+    { min: 11, max: 13 },
+    { min: 13, max: 15 },
+    { min: 15, max: 17 },
+    { min: 17, max: 19 },
+    { min: 19, max: 21 },
+    { min: 21, max: 23 }
+  ]
+
+  function getIntervalIndex(hour: number) {
+    if (hour === 0) hour = 24
+    return intervalos.findIndex(i => hour >= i.min && hour < i.max)
+  }
+
+  const hour = hora.getHours()
+  const linha = getIntervalIndex(hour)
+
+  if (linha < 0) {
+    setResultado("Erro no horário")
+    return
+  }
+
+  // -------------------------------
+  // 7) RESULTADO FINAL
+  // -------------------------------
+  const pontoAberto = tabelaPontos[tronco][linha]
+  setResultado(pontoAberto)
+}
+
+
+
 
   // 🔹 Salvar no Firestore
   const handleSalvar = async () => {
